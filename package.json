@@ -1,0 +1,29 @@
+{
+  "name": "tpdaiposta",
+  "version": "1.0.0",
+  "description": "Tp",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eitumas/TpDaiPosta.git"
+  },
+  "author": "Tiago Ghelman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eitumas/TpDaiPosta/issues"
+  },
+  "homepage": "https://github.com/eitumas/TpDaiPosta#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3"
+  }
+}
