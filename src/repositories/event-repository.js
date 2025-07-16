@@ -1,9 +1,6 @@
-import getClient from '../configs/db-config.js';
+import pool from '../../database/database.js';  // IMPORTANTE: importás el pool, NO getClient
 
 async function obtenerTodosLosEventos({ pagina = 1, limite = 10, nombre, fechaInicio, etiqueta }) {
-  const cliente = getClient();
-  await cliente.connect();
-
   let filtros = [];
   let valores = [];
   let indice = 1;
@@ -25,8 +22,9 @@ async function obtenerTodosLosEventos({ pagina = 1, limite = 10, nombre, fechaIn
   }
 
   const clausulaWhere = filtros.length > 0 ? `WHERE ${filtros.join(' AND ')}` : '';
-
   const desplazamiento = (pagina - 1) * limite;
+
+  valores.push(limite, desplazamiento);
 
   const sql = `
     SELECT 
@@ -74,17 +72,15 @@ async function obtenerTodosLosEventos({ pagina = 1, limite = 10, nombre, fechaIn
     LIMIT $${indice} OFFSET $${indice + 1}
   `;
 
-  valores.push(limite, desplazamiento);
-
-  const resultado = await cliente.query(sql, valores);
-  await cliente.end();
-  return resultado.rows;
+  try {
+    const resultado = await pool.query(sql, valores);
+    return resultado.rows;
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function obtenerEventoPorId(id) {
-  const cliente = getClient();
-  await cliente.connect();
-
   const sql = `
     SELECT 
       e.id, e.name, e.description, e.start_date, e.duration_in_minutes, e.price, e.enabled_for_enrollment, e.max_assistance,
@@ -147,10 +143,164 @@ async function obtenerEventoPorId(id) {
     GROUP BY e.id, u.id, el.id, l.id, p.id, cu.id, cu2.id
   `;
 
-  const valores = [id];
-  const resultado = await cliente.query(sql, valores);
-  await cliente.end();
-  return resultado.rows[0];
+  try {
+    const resultado = await pool.query(sql, [id]);
+    return resultado.rows[0];
+  } catch (error) {
+    throw error;
+  }
 }
 
-export { obtenerTodosLosEventos, obtenerEventoPorId };
+async function crearEvento(eventoData, usuarioId) {
+  const {
+    name,
+    description,
+    start_date,
+    duration_in_minutes,
+    price,
+    enabled_for_enrollment,
+    max_assistance,
+    id_event_location
+  } = eventoData;
+
+  const sql = `
+    INSERT INTO events (
+      name,
+      description,
+      start_date,
+      duration_in_minutes,
+      price,
+      enabled_for_enrollment,
+      max_assistance,
+      id_event_location,
+      id_creator_user
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+    RETURNING *;
+  `;
+
+  const valores = [
+    name,
+    description,
+    start_date,
+    duration_in_minutes,
+    price,
+    enabled_for_enrollment,
+    max_assistance,
+    id_event_location,
+    usuarioId
+  ];
+
+  try {
+    const resultado = await pool.query(sql, valores);
+    return resultado.rows[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function actualizarEventoPorId(eventoData, usuarioId) {
+  const {
+    id,
+    name,
+    description,
+    start_date,
+    duration_in_minutes,
+    price,
+    enabled_for_enrollment,
+    max_assistance,
+    id_event_location
+  } = eventoData;
+
+  const sql = `
+    UPDATE events
+    SET
+      name = $1,
+      description = $2,
+      start_date = $3,
+      duration_in_minutes = $4,
+      price = $5,
+      enabled_for_enrollment = $6,
+      max_assistance = $7,
+      id_event_location = $8,
+      id_creator_user = $9
+    WHERE id = $10
+    RETURNING *;
+  `;
+
+  const valores = [
+    name,
+    description,
+    start_date,
+    duration_in_minutes,
+    price,
+    enabled_for_enrollment,
+    max_assistance,
+    id_event_location,
+    usuarioId,
+    id
+  ];
+
+  try {
+    const resultado = await pool.query(sql, valores);
+    return resultado.rows[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function eliminarEvento(eventoId, usuarioId) {
+  const sql = `
+    DELETE FROM events
+    WHERE id = $1 AND id_creator_user = $2
+    RETURNING *;
+  `;
+
+  try {
+    const resultado = await pool.query(sql, [eventoId, usuarioId]);
+    return resultado.rows[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Y así sucesivamente para las demás funciones...
+
+// Ejemplo con obtenerMaxCapacityEvento:
+async function obtenerMaxCapacityEvento(id_event_location) {
+  const sql = `
+    SELECT max_capacity FROM event_locations WHERE id = $1;
+  `;
+
+  try {
+    const resultado = await pool.query(sql, [id_event_location]);
+    return resultado.rows.length > 0 ? resultado.rows[0].max_capacity : null;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// ejemplo para inscribirUsuarioEvento
+async function inscribirUsuarioEvento(eventoId, usuarioId) {
+  const sql = `
+    INSERT INTO event_participants (id_event, id_user)
+    VALUES ($1, $2)
+    RETURNING *;
+  `;
+
+  try {
+    const resultado = await pool.query(sql, [eventoId, usuarioId]);
+    return resultado.rows[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+export {
+  obtenerTodosLosEventos,
+  obtenerEventoPorId,
+  crearEvento,
+  actualizarEventoPorId,
+  eliminarEvento,
+  obtenerMaxCapacityEvento,
+  inscribirUsuarioEvento,
+};
