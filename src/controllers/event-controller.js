@@ -4,7 +4,6 @@ import autenticarToken from '../middlewares/autentication-middleware.js';
 
 const router = Router();
 
-// Listado de eventos con paginación y filtros
 router.get('/', async (req, res) => {
   try {
     const { pagina, limite, nombre, fechaInicio, etiqueta } = req.query;
@@ -22,7 +21,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Detalle de un evento por id
 router.get('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -38,7 +36,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Crear un nuevo evento (requiere autenticación)
 router.post('/', autenticarToken, async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
@@ -50,7 +47,7 @@ router.post('/', autenticarToken, async (req, res) => {
   }
 });
 
-// Actualizar un evento existente (requiere autenticación)
+
 router.put('/', autenticarToken, async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
@@ -66,7 +63,7 @@ router.put('/', autenticarToken, async (req, res) => {
   }
 });
 
-// Eliminar un evento (requiere autenticación)
+
 router.delete('/:id', autenticarToken, async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
@@ -82,7 +79,7 @@ router.delete('/:id', autenticarToken, async (req, res) => {
   }
 });
 
-// Inscripción a un evento (requiere autenticación)
+
 router.post('/:id/enrollment', autenticarToken, async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
@@ -98,7 +95,6 @@ router.post('/:id/enrollment', autenticarToken, async (req, res) => {
   }
 });
 
-// Eliminar inscripción a un evento (requiere autenticación)
 router.delete('/:id/enrollment', autenticarToken, async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
@@ -114,7 +110,6 @@ router.delete('/:id/enrollment', autenticarToken, async (req, res) => {
   }
 });
 
-// Listar participantes de un evento (requiere autenticación)
 router.get('/:id/participants', autenticarToken, async (req, res) => {
   try {
     const eventoId = parseInt(req.params.id);

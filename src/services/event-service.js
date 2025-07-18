@@ -1,23 +1,13 @@
-import { 
-  obtenerTodosLosEventos, 
-  obtenerEventoPorId, 
-  crearEvento, 
-  actualizarEventoPorId,  
-  eliminarEvento, 
-  inscribirUsuarioEvento, 
-  eliminarInscripcion, 
-  obtenerParticipantesEvento, 
-  obtenerMaxCapacityEvento, 
-  obtenerCantidadInscritos, 
-  estaUsuarioInscripto 
-} from '../repositories/event-repository.js';
+import EventRepository from '../repositories/event-repository.js';
+
+const eventRepository = new EventRepository();
 
 async function obtenerTodosLosEventosServicio(parametros) {
-  return await obtenerTodosLosEventos(parametros);
+  return await eventRepository.obtenerTodosLosEventos(parametros);
 }
 
 async function obtenerEventoPorIdServicio(id) {
-  return await obtenerEventoPorId(id);
+  return await eventRepository.obtenerEventoPorId(id);
 }
 
 async function crearEventoServicio(eventoData, usuarioId) {
@@ -36,11 +26,11 @@ async function crearEventoServicio(eventoData, usuarioId) {
   if (!eventoData.max_assistance || eventoData.max_assistance < 0) {
     throw new Error('El campo max_assistance es inválido.');
   }
-  const maxCapacity = await obtenerMaxCapacityEvento(eventoData.id_event_location);
+  const maxCapacity = await eventRepository.obtenerMaxCapacityEvento(eventoData.id_event_location);
   if (eventoData.max_assistance > maxCapacity) {
     throw new Error('El max_assistance no puede ser mayor que el max_capacity del id_event_location.');
   }
-  return await crearEvento(eventoData, usuarioId);
+  return await eventRepository.crearEvento(eventoData, usuarioId);
 }
 
 async function actualizarEventoServicio(eventoData, usuarioId) {
@@ -62,23 +52,23 @@ async function actualizarEventoServicio(eventoData, usuarioId) {
   if (!eventoData.max_assistance || eventoData.max_assistance < 0) {
     throw new Error('El campo max_assistance es inválido.');
   }
-  const maxCapacity = await obtenerMaxCapacityEvento(eventoData.id_event_location);
+  const maxCapacity = await eventRepository.obtenerMaxCapacityEvento(eventoData.id_event_location);
   if (eventoData.max_assistance > maxCapacity) {
     throw new Error('El max_assistance no puede ser mayor que el max_capacity del id_event_location.');
   }
-  return await actualizarEventoPorId(eventoData, usuarioId);
+  return await eventRepository.actualizarEvento(eventoData, usuarioId);
 }
 
 async function eliminarEventoServicio(eventoId, usuarioId) {
-  const inscritos = await obtenerCantidadInscritos(eventoId);
+  const inscritos = await eventRepository.obtenerCantidadInscritos(eventoId);
   if (inscritos > 0) {
     throw new Error('No se puede eliminar el evento porque tiene usuarios registrados.');
   }
-  return await eliminarEvento(eventoId, usuarioId);
+  return await eventRepository.eliminarEvento(eventoId, usuarioId);
 }
 
 async function inscribirUsuarioEventoServicio(eventoId, usuarioId) {
-  const evento = await obtenerEventoPorId(eventoId);
+  const evento = await eventRepository.obtenerEventoPorId(eventoId);
   if (!evento) {
     throw new Error('Evento no encontrado.');
   }
@@ -90,19 +80,19 @@ async function inscribirUsuarioEventoServicio(eventoId, usuarioId) {
   if (!evento.enabled_for_enrollment) {
     throw new Error('El evento no está habilitado para inscripción.');
   }
-  const inscritos = await obtenerCantidadInscritos(eventoId);
+  const inscritos = await eventRepository.obtenerCantidadInscritos(eventoId);
   if (inscritos >= evento.max_assistance) {
     throw new Error('Se excedió la capacidad máxima de inscritos.');
   }
-  const yaInscripto = await estaUsuarioInscripto(eventoId, usuarioId);
+  const yaInscripto = await eventRepository.estaUsuarioInscripto(eventoId, usuarioId);
   if (yaInscripto) {
     throw new Error('El usuario ya está registrado en el evento.');
   }
-  return await inscribirUsuarioEvento(eventoId, usuarioId);
+  return await eventRepository.inscribirUsuarioAEvento(eventoId, usuarioId);
 }
 
 async function eliminarInscripcionServicio(eventoId, usuarioId) {
-  const evento = await obtenerEventoPorId(eventoId);
+  const evento = await eventRepository.obtenerEventoPorId(eventoId);
   if (!evento) {
     throw new Error('Evento no encontrado.');
   }
@@ -111,15 +101,15 @@ async function eliminarInscripcionServicio(eventoId, usuarioId) {
   if (fechaEvento <= fechaActual) {
     throw new Error('No se puede eliminar inscripción de un evento que ya sucedió o es hoy.');
   }
-  const estaInscripto = await estaUsuarioInscripto(eventoId, usuarioId);
+  const estaInscripto = await eventRepository.estaUsuarioInscripto(eventoId, usuarioId);
   if (!estaInscripto) {
     throw new Error('El usuario no está registrado en el evento.');
   }
-  return await eliminarInscripcion(eventoId, usuarioId);
+  return await eventRepository.desinscribirUsuarioDeEvento(eventoId, usuarioId);
 }
 
 async function obtenerParticipantesEventoServicio(eventoId) {
-  return await obtenerParticipantesEvento(eventoId);
+  return await eventRepository.obtenerParticipantesEvento(eventoId);
 }
 
 export {

@@ -11,7 +11,14 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/event', eventoRouter);
+
+
+
 app.use('/api/user', usuarioRouter);
+
+app.get('/', (req, res) => {
+  res.send('Bienvenido a la API de TpDaiPosta. Usa /api/event o /api/user para acceder a los recursos.');
+});
 
 //Verificar la conexión a pgadmin
 app.get("/api/test-db", async (req, res) => {
