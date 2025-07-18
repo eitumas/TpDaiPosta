@@ -3,6 +3,10 @@ import { registrarUsuario, iniciarSesion } from '../services/user-service.js';
 
 const router = Router();
 
+router.get('/', (req, res) => {
+  res.send('Ruta /api/user funcionando correctamente');
+});
+
 router.post('/register', async (req, res) => {
   try {
     const nuevoUsuario = await registrarUsuario(req.body);

@@ -14,7 +14,7 @@ function validarEmail(email) {
 }
 
 async function registrarUsuario(usuario) {
-  const { first_name, last_name, username, password } = usuario;
+  const { first_name, last_name, username, email, password } = usuario;
 
   if (!first_name || first_name.length < 3) {
     throw new Error('El campo first_name está vacío o tiene menos de tres letras.');
@@ -22,7 +22,7 @@ async function registrarUsuario(usuario) {
   if (!last_name || last_name.length < 3) {
     throw new Error('El campo last_name está vacío o tiene menos de tres letras.');
   }
-  if (!validarEmail(username)) {
+  if (!email || !validarEmail(email)) {
     throw new Error('El email es inválido.');
   }
   if (!password || password.length < 3) {
@@ -46,9 +46,6 @@ async function registrarUsuario(usuario) {
 }
 
 async function iniciarSesion(username, password) {
-  if (!validarEmail(username)) {
-    throw new Error('El email es inválido.');
-  }
 
   const usuario = await obtenerUsuarioPorNombreDeUsuario(username);
   if (!usuario) {
