@@ -189,9 +189,8 @@ export default class EventRepository {
     const sql = `
       UPDATE events
       SET name = $1, description = $2, start_date = $3, duration_in_minutes = $4,
-          price = $5, enabled_for_enrollment = $6, max_assistance = $7, id_event_location = $8,
-          id_creator_user = $9
-      WHERE id = $10
+          price = $5, enabled_for_enrollment = $6, max_assistance = $7, id_event_location = $8
+      WHERE id = $9 AND id_creator_user = $10
       RETURNING *;
     `;
 
@@ -204,8 +203,8 @@ export default class EventRepository {
       enabled_for_enrollment,
       max_assistance,
       id_event_location,
-      usuarioId,
-      id
+      id,
+      usuarioId
     ];
 
     const result = await pool.query(sql, values);
@@ -267,5 +266,29 @@ export default class EventRepository {
     `;
     const result = await pool.query(sql, [eventoId]);
     return parseInt(result.rows[0].count, 10);
+  }
+
+  async obtenerCantidadInscritos(eventoId) {
+    const sql = `SELECT COUNT(*)::int AS c FROM event_enrollments WHERE id_event = $1;`;
+    const r = await pool.query(sql, [eventoId]);
+    return r.rows[0]?.c ?? 0;
+  }
+
+  async estaUsuarioInscripto(eventoId, usuarioId) {
+    const sql = `SELECT 1 FROM event_enrollments WHERE id_event = $1 AND id_user = $2 LIMIT 1;`;
+    const r = await pool.query(sql, [eventoId, usuarioId]);
+    return r.rowCount > 0;
+  }
+
+  async obtenerParticipantesEvento(eventoId) {
+    const sql = `
+      SELECT u.id, u.first_name, u.last_name, u.username, ee.registration_date_time, ee.attended, ee.rating
+      FROM event_enrollments ee
+      JOIN users u ON u.id = ee.id_user
+      WHERE ee.id_event = $1
+      ORDER BY ee.registration_date_time DESC;
+    `;
+    const r = await pool.query(sql, [eventoId]);
+    return r.rows;
   }
 }
