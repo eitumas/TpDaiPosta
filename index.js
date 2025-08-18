@@ -3,12 +3,14 @@ import cors from "cors";
 import eventoRouter from "./src/controllers/event-controller.js";
 import usuarioRouter from "./src/controllers/user-controller.js";
 import pool from './database/database.js'
+import requestContext from './src/middlewares/context-middleware.js'
 
 const app = express();
 const puerto = 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use(requestContext);
 
 app.use('/api/event', eventoRouter);
 

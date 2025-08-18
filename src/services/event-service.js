@@ -1,4 +1,5 @@
 import EventRepository from '../repositories/event-repository.js';
+import { getContext } from '../context/context.js';
 
 const eventRepository = new EventRepository();
 
@@ -10,7 +11,12 @@ async function obtenerEventoPorIdServicio(id) {
   return await eventRepository.obtenerEventoPorId(id);
 }
 
-async function crearEventoServicio(eventoData, usuarioId) {
+async function crearEventoServicio(eventoData) {
+  const contexto = getContext();
+  const usuarioId = contexto.user?.id;
+  if (!usuarioId) {
+    throw new Error('No autorizado.');
+  }
   if (!eventoData.name || eventoData.name.length < 3) {
     throw new Error('El campo name está vacío o tiene menos de tres letras.');
   }
@@ -33,7 +39,12 @@ async function crearEventoServicio(eventoData, usuarioId) {
   return await eventRepository.crearEvento(eventoData, usuarioId);
 }
 
-async function actualizarEventoServicio(eventoData, usuarioId) {
+async function actualizarEventoServicio(eventoData) {
+  const contexto = getContext();
+  const usuarioId = contexto.user?.id;
+  if (!usuarioId) {
+    throw new Error('No autorizado.');
+  }
   if (!eventoData.id) {
     throw new Error('El id del evento es requerido para actualizar.');
   }
@@ -59,7 +70,12 @@ async function actualizarEventoServicio(eventoData, usuarioId) {
   return await eventRepository.actualizarEvento(eventoData, usuarioId);
 }
 
-async function eliminarEventoServicio(eventoId, usuarioId) {
+async function eliminarEventoServicio(eventoId) {
+  const contexto = getContext();
+  const usuarioId = contexto.user?.id;
+  if (!usuarioId) {
+    throw new Error('No autorizado.');
+  }
   const inscritos = await eventRepository.obtenerCantidadInscritos(eventoId);
   if (inscritos > 0) {
     throw new Error('No se puede eliminar el evento porque tiene usuarios registrados.');
@@ -67,7 +83,12 @@ async function eliminarEventoServicio(eventoId, usuarioId) {
   return await eventRepository.eliminarEvento(eventoId, usuarioId);
 }
 
-async function inscribirUsuarioEventoServicio(eventoId, usuarioId) {
+async function inscribirUsuarioEventoServicio(eventoId) {
+  const contexto = getContext();
+  const usuarioId = contexto.user?.id;
+  if (!usuarioId) {
+    throw new Error('No autorizado.');
+  }
   const evento = await eventRepository.obtenerEventoPorId(eventoId);
   if (!evento) {
     throw new Error('Evento no encontrado.');
@@ -91,7 +112,12 @@ async function inscribirUsuarioEventoServicio(eventoId, usuarioId) {
   return await eventRepository.inscribirUsuarioAEvento(eventoId, usuarioId);
 }
 
-async function eliminarInscripcionServicio(eventoId, usuarioId) {
+async function eliminarInscripcionServicio(eventoId) {
+  const contexto = getContext();
+  const usuarioId = contexto.user?.id;
+  if (!usuarioId) {
+    throw new Error('No autorizado.');
+  }
   const evento = await eventRepository.obtenerEventoPorId(eventoId);
   if (!evento) {
     throw new Error('Evento no encontrado.');

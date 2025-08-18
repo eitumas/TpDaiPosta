@@ -38,9 +38,8 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', autenticarToken, async (req, res) => {
   try {
-    const usuarioId = req.usuario.id;
     const eventoData = req.body;
-    const nuevoEvento = await crearEventoServicio(eventoData, usuarioId);
+    const nuevoEvento = await crearEventoServicio(eventoData);
     res.status(201).json(nuevoEvento);
   } catch (error) {
     res.status(400).json({ mensaje: error.message });
@@ -50,9 +49,8 @@ router.post('/', autenticarToken, async (req, res) => {
 
 router.put('/', autenticarToken, async (req, res) => {
   try {
-    const usuarioId = req.usuario.id;
     const eventoData = req.body;
-    const eventoActualizado = await actualizarEventoServicio(eventoData, usuarioId);
+    const eventoActualizado = await actualizarEventoServicio(eventoData);
     if (eventoActualizado) {
       res.status(200).json(eventoActualizado);
     } else {
@@ -66,9 +64,8 @@ router.put('/', autenticarToken, async (req, res) => {
 
 router.delete('/:id', autenticarToken, async (req, res) => {
   try {
-    const usuarioId = req.usuario.id;
     const eventoId = parseInt(req.params.id);
-    const eliminado = await eliminarEventoServicio(eventoId, usuarioId);
+    const eliminado = await eliminarEventoServicio(eventoId);
     if (eliminado) {
       res.status(200).json({ mensaje: 'Evento eliminado correctamente' });
     } else {
@@ -82,9 +79,8 @@ router.delete('/:id', autenticarToken, async (req, res) => {
 
 router.post('/:id/enrollment', autenticarToken, async (req, res) => {
   try {
-    const usuarioId = req.usuario.id;
     const eventoId = parseInt(req.params.id);
-    const inscrito = await inscribirUsuarioEventoServicio(eventoId, usuarioId);
+    const inscrito = await inscribirUsuarioEventoServicio(eventoId);
     if (inscrito) {
       res.status(201).json({ mensaje: 'Usuario inscrito correctamente' });
     } else {
@@ -97,9 +93,8 @@ router.post('/:id/enrollment', autenticarToken, async (req, res) => {
 
 router.delete('/:id/enrollment', autenticarToken, async (req, res) => {
   try {
-    const usuarioId = req.usuario.id;
     const eventoId = parseInt(req.params.id);
-    const eliminado = await eliminarInscripcionServicio(eventoId, usuarioId);
+    const eliminado = await eliminarInscripcionServicio(eventoId);
     if (eliminado) {
       res.status(200).json({ mensaje: 'Inscripción eliminada correctamente' });
     } else {
