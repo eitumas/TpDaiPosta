@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { setContextValue } from '../context/context.js';
+import { establecerValorEnContexto } from '../context/contexto.js';
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ const autenticarToken = (req, res, next) => {
       return res.status(401).json({ exito: false, mensaje: 'Token inválido' });
     }
     req.usuario = usuario;
-    setContextValue('user', usuario);
+    establecerValorEnContexto('usuario', usuario); 
     next();
   });
 };

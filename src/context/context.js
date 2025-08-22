@@ -1,23 +1,24 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 
-const asyncLocalStorage = new AsyncLocalStorage();
+const almacenamientoLocalAsincrono = new AsyncLocalStorage();
 
-function getContext() {
-  return asyncLocalStorage.getStore() || {};
+function obtenerContexto() {
+  return almacenamientoLocalAsincrono.getStore() || {};
 }
 
-function setContextValue(key, value) {
-  const store = asyncLocalStorage.getStore();
-  if (store) {
-    store[key] = value;
+function establecerValorEnContexto(clave, valor) {
+  const contexto = almacenamientoLocalAsincrono.getStore();
+  if (contexto) {
+    contexto[clave] = valor;
   }
 }
 
-function runWithContext(initialContext, callback) {
-  return asyncLocalStorage.run(initialContext, callback);
+function ejecutarConContexto(contextoInicial, callback) {
+  return almacenamientoLocalAsincrono.run(contextoInicial, callback);
 }
 
-export { getContext, setContextValue, runWithContext };
-export default asyncLocalStorage;
+export { obtenerContexto, establecerValorEnContexto, ejecutarConContexto };
+export default almacenamientoLocalAsincrono;
 
 
+  
