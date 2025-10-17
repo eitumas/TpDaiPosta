@@ -17,8 +17,9 @@ function ejecutarConContexto(contextoInicial, callback) {
   return almacenamientoLocalAsincrono.run(contextoInicial, callback);
 }
 
-export { obtenerContexto, establecerValorEnContexto, ejecutarConContexto };
+// Aliases en inglés para compatibilidad con otros módulos del repo
+const runWithContext = ejecutarConContexto;
+const getContext = obtenerContexto;
+
+export { obtenerContexto, establecerValorEnContexto, ejecutarConContexto, runWithContext, getContext };
 export default almacenamientoLocalAsincrono;
-
-
-  

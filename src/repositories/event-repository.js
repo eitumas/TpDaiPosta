@@ -1,7 +1,13 @@
 import pool from '../../database/database.js';
 
 export default class EventRepository {
-  async obtenerTodosLosEventos({ pagina = 1, limite = 10, nombre, fechaInicio, etiqueta }) {
+  async obtenerTodosLosEventos(params = {}) {
+    // aceptar ambos nombres de parámetros (español / inglés)
+    const { pagina = 1, limite = 10 } = params;
+    const nombre = params.nombre ?? params.name;
+    const fechaInicio = params.fechaInicio ?? params.startdate ?? params.startDate;
+    const etiqueta = params.etiqueta ?? params.tag;
+
     let filtros = [];
     let valores = [];
     let indice = 1;
@@ -19,7 +25,8 @@ export default class EventRepository {
     }
 
     if (etiqueta) {
-      filtros.push(`t.name ILIKE '%' || $${indice} || '%'`);
+      // usar el alias tg (tags) que figura en los JOINs
+      filtros.push(`tg.name ILIKE '%' || $${indice} || '%'`);
       valores.push(etiqueta);
       indice++;
     }

@@ -4,6 +4,8 @@ import eventoRouter from "./src/controllers/event-controller.js";
 import usuarioRouter from "./src/controllers/user-controller.js";
 import pool from './database/database.js'
 import requestContext from './src/middlewares/context-middleware.js'
+import Autentication from './src/middlewares/autentication-middleware.js'
+
 
 const app = express();
 const puerto = 3000;
