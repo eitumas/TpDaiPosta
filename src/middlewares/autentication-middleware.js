@@ -5,26 +5,42 @@ import { establecerValorEnContexto } from '../context/context.js';
 dotenv.config();
 
 const autenticarToken = (req, res, next) => {
-  const encabezadoAutorizacion = req.headers['authorization'];
-  const token = encabezadoAutorizacion && encabezadoAutorizacion.split(' ')[1]; 
+  const encabezado = (req.headers['authorization'] || '').trim();
+  let token = null;
 
-  if (!token) {
-    return res.status(401).json({ exito: false, mensaje: 'Token no proporcionado' });
+  // Leer header Authorization: "Bearer <token>" (case-insensitive)
+  if (encabezado) {
+    const parts = encabezado.split(' ');
+    if (parts.length === 2 && /^Bearer$/i.test(parts[0])) {
+      token = parts[1];
+    }
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (error, usuario) => {
-    if (error) {
-      return res.status(401).json({ exito: false, mensaje: 'Token inválido' });
-    }
-    // mantener en req para compatibilidad con middlewares/handlers que lean req.usuario
-    req.usuario = usuario;
+  // Opcional (solo para pruebas): permitir token por query string
+  if (!token && req.query && (req.query.token || req.query.access_token)) {
+    token = req.query.token || req.query.access_token;
+  }
 
-    // guardar en el contexto con la clave 'user' (que usan los servicios) y también 'usuario' por compatibilidad
-    establecerValorEnContexto('user', usuario);
-    establecerValorEnContexto('usuario', usuario);
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Token no proporcionado', token: '' });
+  }
 
-    next();
-  });
+  if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET no definido en .env');
+    return res.status(500).json({ success: false, message: 'Configuración de servidor inválida', token: '' });
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.usuario = payload;
+    // mantener en el contexto para los servicios
+    establecerValorEnContexto('user', payload);
+    establecerValorEnContexto('usuario', payload);
+
+    return next();
+  } catch (err) {
+    return res.status(401).json({ success: false, message: 'Token inválido', token: '' });
+  }
 };
 
 export default autenticarToken;

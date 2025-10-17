@@ -298,4 +298,10 @@ export default class EventRepository {
     const r = await pool.query(sql, [eventoId]);
     return r.rows;
   }
+  
 }
+export function createEventRepository() {
+  return new EventRepository();
+}
+
+
